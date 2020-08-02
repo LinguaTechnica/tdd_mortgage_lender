@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+dependencies {
+    testCompile 'io.cucumber:cucumber-java:6.2.2'
+    testCompile 'io.cucumber:cucumber-junit:6.2.2'
+
+    implementation 'org.junit.jupiter:junit-jupiter:5.6.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'mortgage_lender', 'src/test/resources']
+        }
+    }
+}
